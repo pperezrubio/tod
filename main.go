@@ -540,6 +540,55 @@ var branchesDeleteCmd = &cobra.Command{
 	},
 }
 
+var iterationsCmd = &cobra.Command{
+	Use:   "iterations",
+	Short: "Manage project iterations (sprints/milestones)",
+	Long:  `List, create, and close OneDev project iterations.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IterationsCommand{}
+		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var iterationsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List iterations for a project",
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IterationsListCommand{}
+		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var iterationsCreateCmd = &cobra.Command{
+	Use:   "create <name>",
+	Short: "Create a new iteration",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IterationsCreateCommand{}
+		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var iterationsCloseCmd = &cobra.Command{
+	Use:   "close <id>",
+	Short: "Close an iteration",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IterationsCloseCommand{}
+		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 func init() {
 	// Run-local command specific flags
 	runLocalJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
@@ -665,6 +714,38 @@ func init() {
 	artifactsCmd.AddCommand(artifactsListCmd)
 	artifactsCmd.AddCommand(artifactsDownloadCmd)
 
+	// Branches command flags
+	branchesCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	branchesListCmd.Flags().StringP("project", "p", "", "Project path")
+	branchesCreateCmd.Flags().StringP("project", "p", "", "Project path")
+	branchesCreateCmd.Flags().String("from", "main", "Base revision (branch, tag, or commit hash)")
+	branchesDeleteCmd.Flags().StringP("project", "p", "", "Project path")
+
+	// Add subcommands to branchesCmd
+	branchesCmd.AddCommand(branchesListCmd)
+	branchesCmd.AddCommand(branchesCreateCmd)
+	branchesCmd.AddCommand(branchesDeleteCmd)
+
+	// Iterations command flags (shared for default list action)
+	iterationsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
+	// Iterations list command flags
+	iterationsListCmd.Flags().StringP("project", "p", "", "Project path")
+
+	// Iterations create command flags
+	iterationsCreateCmd.Flags().StringP("project", "p", "", "Project path")
+	iterationsCreateCmd.Flags().String("start", "", "Start date (YYYY-MM-DD)")
+	iterationsCreateCmd.Flags().String("due", "", "Due date (YYYY-MM-DD)")
+	iterationsCreateCmd.Flags().String("description", "", "Iteration description")
+
+	// Iterations close command flags
+	iterationsCloseCmd.Flags().StringP("project", "p", "", "Project path")
+
+	// Add subcommands to iterationsCmd
+	iterationsCmd.AddCommand(iterationsListCmd)
+	iterationsCmd.AddCommand(iterationsCreateCmd)
+	iterationsCmd.AddCommand(iterationsCloseCmd)
+
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
 	rootCmd.AddCommand(runJobCmd)
@@ -684,21 +765,8 @@ func init() {
 	rootCmd.AddCommand(issuesCmd)
 	rootCmd.AddCommand(prsCmd)
 	rootCmd.AddCommand(artifactsCmd)
-
-	// Branches command flags
-	branchesCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
-	branchesListCmd.Flags().StringP("project", "p", "", "Project path")
-	branchesCreateCmd.Flags().StringP("project", "p", "", "Project path")
-	branchesCreateCmd.Flags().String("from", "main", "Base revision (branch, tag, or commit hash)")
-	branchesDeleteCmd.Flags().StringP("project", "p", "", "Project path")
-
-	// Add subcommands to branchesCmd
-	branchesCmd.AddCommand(branchesListCmd)
-	branchesCmd.AddCommand(branchesCreateCmd)
-	branchesCmd.AddCommand(branchesDeleteCmd)
-
-	// Add branches to root
 	rootCmd.AddCommand(branchesCmd)
+	rootCmd.AddCommand(iterationsCmd)
 }
 
 func main() {
