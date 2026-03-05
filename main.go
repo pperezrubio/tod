@@ -226,6 +226,55 @@ var createProjectCmd = &cobra.Command{
 	},
 }
 
+var prsCmd = &cobra.Command{
+	Use:   "prs",
+	Short: "Manage pull requests",
+	Long:  `List, create, and merge pull requests in a OneDev project.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		prsCommand := PrsCommand{}
+		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		prsCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var prsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List pull requests",
+	Long:  `List pull requests for a OneDev project.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		prsCommand := PrsCommand{}
+		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		prsCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var prsCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new pull request",
+	Long:  `Create a new pull request in a OneDev project.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		prsCommand := PrsCommand{}
+		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		prsCommand.ExecuteCreate(cmd, args, logger)
+		return nil
+	},
+}
+
+var prsMergeCmd = &cobra.Command{
+	Use:   "merge [pull-request-number]",
+	Short: "Merge a pull request",
+	Long:  `Merge a pull request in a OneDev project.`,
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		prsCommand := PrsCommand{}
+		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		prsCommand.ExecuteMerge(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -418,6 +467,35 @@ func init() {
 	issuesCmd.AddCommand(issuesEditCmd)
 	issuesCmd.AddCommand(issuesCloseCmd)
 
+	// PRS command flags (default list action)
+	prsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	prsCmd.Flags().IntP("count", "n", 20, "Maximum number of pull requests to return")
+	prsCmd.Flags().StringP("query", "q", "", "OneDev PR query (overrides --status filter)")
+	prsCmd.Flags().StringP("status", "s", "open", "Filter by status: open, merged, discarded, all")
+
+	// PRS list command flags
+	prsListCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	prsListCmd.Flags().IntP("count", "n", 20, "Maximum number of pull requests to return")
+	prsListCmd.Flags().StringP("query", "q", "", "OneDev PR query (overrides --status filter)")
+	prsListCmd.Flags().StringP("status", "s", "open", "Filter by status: open, merged, discarded, all")
+
+	// PRS create command flags
+	prsCreateCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	prsCreateCmd.Flags().String("title", "", "Pull request title (required)")
+	prsCreateCmd.Flags().String("source", "", "Source branch (required)")
+	prsCreateCmd.Flags().String("target", "main", "Target branch (default: main)")
+	prsCreateCmd.Flags().String("description", "", "Pull request description")
+
+	// PRS merge command flags
+	prsMergeCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	prsMergeCmd.Flags().String("strategy", "merge-commit", "Merge strategy: merge-commit, squash-merge, rebase-merge")
+	prsMergeCmd.Flags().Bool("delete-branch", true, "Delete source branch after merge")
+
+	// Add subcommands to prsCmd
+	prsCmd.AddCommand(prsListCmd)
+	prsCmd.AddCommand(prsCreateCmd)
+	prsCmd.AddCommand(prsMergeCmd)
+
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
 	rootCmd.AddCommand(runJobCmd)
@@ -435,6 +513,7 @@ func init() {
 	rootCmd.AddCommand(configCmd)
 	rootCmd.AddCommand(createProjectCmd)
 	rootCmd.AddCommand(issuesCmd)
+	rootCmd.AddCommand(prsCmd)
 }
 
 func main() {
