@@ -140,6 +140,19 @@ var settingsCmd = &cobra.Command{
 	},
 }
 
+var usersCmd = &cobra.Command{
+	Use:   "users",
+	Short: "List users",
+	Long:  `List users on the OneDev server.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		usersCommand := UsersCommand{}
+		logger := log.New(os.Stdout, "[USERS] ", log.LstdFlags)
+		usersCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -241,6 +254,7 @@ func init() {
 	rootCmd.AddCommand(logsCmd)
 	rootCmd.AddCommand(secretsCmd)
 	rootCmd.AddCommand(settingsCmd)
+	rootCmd.AddCommand(usersCmd)
 }
 
 func main() {
