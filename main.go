@@ -191,6 +191,56 @@ var issuesCloseCmd = &cobra.Command{
 	},
 }
 
+
+var branchesCmd = &cobra.Command{
+	Use:   "branches",
+	Short: "Manage repository branches",
+	Long:  `List, create, and delete OneDev repository branches.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := BranchesCommand{}
+		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var branchesListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List branches for a project",
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := BranchesListCommand{}
+		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var branchesCreateCmd = &cobra.Command{
+	Use:   "create <name>",
+	Short: "Create a new branch",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := BranchesCreateCommand{}
+		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var branchesDeleteCmd = &cobra.Command{
+	Use:   "delete <name>",
+	Short: "Delete a branch",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := BranchesDeleteCommand{}
+		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 func init() {
 	// Run-local command specific flags
 	runLocalJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
@@ -248,6 +298,21 @@ func init() {
 	rootCmd.AddCommand(checkoutPullRequestCmd)
 	rootCmd.AddCommand(checkBuildSpecCmd)
 	rootCmd.AddCommand(issuesCmd)
+
+	// Branches command flags
+	branchesCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	branchesListCmd.Flags().StringP("project", "p", "", "Project path")
+	branchesCreateCmd.Flags().StringP("project", "p", "", "Project path")
+	branchesCreateCmd.Flags().String("from", "main", "Base revision (branch, tag, or commit hash)")
+	branchesDeleteCmd.Flags().StringP("project", "p", "", "Project path")
+
+	// Add subcommands to branchesCmd
+	branchesCmd.AddCommand(branchesListCmd)
+	branchesCmd.AddCommand(branchesCreateCmd)
+	branchesCmd.AddCommand(branchesDeleteCmd)
+
+	// Add branches to root
+	rootCmd.AddCommand(branchesCmd)
 }
 
 func main() {
