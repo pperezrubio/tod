@@ -125,6 +125,19 @@ var checkBuildSpecCmd = &cobra.Command{
 	},
 }
 
+var createProjectCmd = &cobra.Command{
+	Use:   "create-project [name]",
+	Short: "Create a new project",
+	Long:  "Create a new project on the OneDev server.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		createProjectCommand := CreateProjectCommand{}
+		logger := log.New(os.Stdout, "[CREATE-PROJECT] ", log.LstdFlags)
+		createProjectCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 func init() {
 	// Run-local command specific flags
 	runLocalJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
@@ -144,12 +157,17 @@ func init() {
 	// MCP command specific flags
 	mcpCmd.Flags().String("log-file", "", "Specify log file path for debug logging")
 
+	// Create-project command flags
+	createProjectCmd.Flags().StringP("description", "d", "", "Project description")
+	createProjectCmd.Flags().String("parent", "", "Parent project path for nested projects")
+
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
 	rootCmd.AddCommand(runJobCmd)
 	rootCmd.AddCommand(mcpCmd)
 	rootCmd.AddCommand(checkoutPullRequestCmd)
 	rootCmd.AddCommand(checkBuildSpecCmd)
+	rootCmd.AddCommand(createProjectCmd)
 }
 
 func main() {
