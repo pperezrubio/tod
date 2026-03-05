@@ -1,0 +1,37 @@
+TOD (TheOneDev) is a command line tool for OneDev 13+
+
+Usage:
+  tod [command]
+
+Available Commands:
+  artifacts        Manage build artifacts
+  check-build-spec Check build spec
+  checkout         Checkout a pull request
+  completion       Generate the autocompletion script for the specified shell
+  help             Help about any command
+  mcp              Start MCP server
+  projects         List OneDev projects
+  run              Run a CI/CD job against a specific branch or tag
+  run-local        Run a CI/CD job against local changes
+
+Flags:
+  -h, --help   help for tod
+
+Use "tod [command] --help" for more information about a command.
+---
+List and download OneDev build artifacts.
+
+Usage:
+  tod artifacts [flags]
+  tod artifacts [command]
+
+Available Commands:
+  download    Download an artifact from a build
+  list        List artifacts for a build
+
+Flags:
+  -b, --build string     Build number (required)
+  -h, --help             help for artifacts
+  -p, --project string   Project path (inferred from git remote if not specified)
+
+Use "tod artifacts [command] --help" for more information about a command.
