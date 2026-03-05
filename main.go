@@ -153,6 +153,19 @@ var usersCmd = &cobra.Command{
 	},
 }
 
+var webhooksCmd = &cobra.Command{
+	Use:   "webhooks",
+	Short: "List webhooks for a project",
+	Long:  `List webhooks configured in a project's settings.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		webhooksCommand := WebhooksCommand{}
+		logger := log.New(os.Stdout, "[WEBHOOKS] ", log.LstdFlags)
+		webhooksCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -255,6 +268,7 @@ func init() {
 	rootCmd.AddCommand(secretsCmd)
 	rootCmd.AddCommand(settingsCmd)
 	rootCmd.AddCommand(usersCmd)
+	rootCmd.AddCommand(webhooksCmd)
 }
 
 func main() {
