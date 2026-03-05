@@ -191,6 +191,31 @@ var issuesCloseCmd = &cobra.Command{
 	},
 }
 
+var issuesCommentsCmd = &cobra.Command{
+	Use:   "comments <number>",
+	Short: "List comments for an issue",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IssuesCommentsCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var issuesCommentCmd = &cobra.Command{
+	Use:   "comment <number> <body>",
+	Short: "Add a comment to an issue",
+	Args:  cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IssuesCommentCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+
 func init() {
 	// Run-local command specific flags
 	runLocalJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
@@ -240,6 +265,12 @@ func init() {
 	issuesCmd.AddCommand(issuesCreateCmd)
 	issuesCmd.AddCommand(issuesEditCmd)
 	issuesCmd.AddCommand(issuesCloseCmd)
+
+	issuesCommentsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	issuesCommentCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
+	issuesCmd.AddCommand(issuesCommentsCmd)
+	issuesCmd.AddCommand(issuesCommentCmd)
 
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
