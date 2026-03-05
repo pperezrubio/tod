@@ -275,6 +275,30 @@ var prsMergeCmd = &cobra.Command{
 	},
 }
 
+var prsApproveCmd = &cobra.Command{
+	Use:   "approve <pr-number>",
+	Short: "Approve a pull request",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := PrsApproveCommand{}
+		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var prsRequestChangesCmd = &cobra.Command{
+	Use:   "request-changes <pr-number>",
+	Short: "Request changes on a pull request",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := PrsRequestChangesCommand{}
+		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -530,10 +554,18 @@ func init() {
 	prsMergeCmd.Flags().String("strategy", "merge-commit", "Merge strategy: merge-commit, squash-merge, rebase-merge")
 	prsMergeCmd.Flags().Bool("delete-branch", true, "Delete source branch after merge")
 
+	// PRS approve command flags
+	prsApproveCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
+	// PRS request-changes command flags
+	prsRequestChangesCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
 	// Add subcommands to prsCmd
 	prsCmd.AddCommand(prsListCmd)
 	prsCmd.AddCommand(prsCreateCmd)
 	prsCmd.AddCommand(prsMergeCmd)
+	prsCmd.AddCommand(prsApproveCmd)
+	prsCmd.AddCommand(prsRequestChangesCmd)
 
 	// Artifacts command flags (shared for default list action)
 	artifactsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")

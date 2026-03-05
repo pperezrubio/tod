@@ -203,3 +203,98 @@ func (command PrsCommand) ExecuteMerge(cobraCmd *cobra.Command, args []string, l
 	}
 	fmt.Printf("Merged pull request #%s\n", prNumber)
 }
+
+type PrsApproveCommand struct{}
+type PrsRequestChangesCommand struct{}
+
+func prsGetCurrentUserId() (int, error) {
+	apiURL := config.ServerUrl + "/~api/users?offset=0&count=1"
+	body, err := prsAPIGet(apiURL)
+	if err != nil {
+		return 0, err
+	}
+	var users []map[string]interface{}
+	if err := json.Unmarshal(body, &users); err != nil || len(users) == 0 {
+		return 0, fmt.Errorf("failed to get current user")
+	}
+	id := int(users[0]["id"].(float64))
+	return id, nil
+}
+
+func prsGetPRId(projectPath, prNumber string) (int, error) {
+	query := fmt.Sprintf(`"Number" is "%s#%s"`, projectPath, prNumber)
+	apiURL := config.ServerUrl + "/~api/pulls?query=" + url.QueryEscape(query) + "&offset=0&count=1"
+	body, err := prsAPIGet(apiURL)
+	if err != nil {
+		return 0, fmt.Errorf("PR #%s not found: %v", prNumber, err)
+	}
+	var prs []map[string]interface{}
+	if err := json.Unmarshal(body, &prs); err != nil || len(prs) == 0 {
+		return 0, fmt.Errorf("PR #%s not found", prNumber)
+	}
+	return int(prs[0]["id"].(float64)), nil
+}
+
+func (command PrsApproveCommand) Execute(cobraCmd *cobra.Command, args []string, logger *log.Logger) {
+	prNumber := args[0]
+	projectPath := resolvePRProject(cobraCmd, logger)
+
+	prId, err := prsGetPRId(projectPath, prNumber)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	userId, err := prsGetCurrentUserId()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get current user:", err)
+		os.Exit(1)
+	}
+
+	payload := map[string]interface{}{
+		"request": map[string]interface{}{"id": prId},
+		"user":    map[string]interface{}{"id": userId},
+		"status":  "APPROVED",
+	}
+	payloadBytes, _ := json.Marshal(payload)
+
+	apiURL := config.ServerUrl + "/~api/pull-request-reviews"
+	_, err = prsAPIPost(apiURL, payloadBytes)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to approve PR:", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Approved pull request #%s\n", prNumber)
+}
+
+func (command PrsRequestChangesCommand) Execute(cobraCmd *cobra.Command, args []string, logger *log.Logger) {
+	prNumber := args[0]
+	projectPath := resolvePRProject(cobraCmd, logger)
+
+	prId, err := prsGetPRId(projectPath, prNumber)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	userId, err := prsGetCurrentUserId()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get current user:", err)
+		os.Exit(1)
+	}
+
+	payload := map[string]interface{}{
+		"request": map[string]interface{}{"id": prId},
+		"user":    map[string]interface{}{"id": userId},
+		"status":  "REQUESTED_FOR_CHANGES",
+	}
+	payloadBytes, _ := json.Marshal(payload)
+
+	apiURL := config.ServerUrl + "/~api/pull-request-reviews"
+	_, err = prsAPIPost(apiURL, payloadBytes)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to request changes on PR:", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Requested changes on pull request #%s\n", prNumber)
+}
