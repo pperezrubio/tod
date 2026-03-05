@@ -213,6 +213,19 @@ var configPathCmd = &cobra.Command{
 	},
 }
 
+var createProjectCmd = &cobra.Command{
+	Use:   "create-project [name]",
+	Short: "Create a new project",
+	Long:  "Create a new project on the OneDev server.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		createProjectCommand := CreateProjectCommand{}
+		logger := log.New(os.Stdout, "[CREATE-PROJECT] ", log.LstdFlags)
+		createProjectCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -323,6 +336,7 @@ func init() {
 	rootCmd.AddCommand(usersCmd)
 	rootCmd.AddCommand(webhooksCmd)
 	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(createProjectCmd)
 }
 
 func main() {
