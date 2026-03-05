@@ -75,6 +75,19 @@ var projectsCmd = &cobra.Command{
 	},
 }
 
+var buildsCmd = &cobra.Command{
+	Use:   "builds",
+	Short: "List recent builds",
+	Long:  `List recent builds with their status, job name, and commit hash.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		buildsCommand := BuildsCommand{}
+		logger := log.New(os.Stdout, "[BUILDS] ", log.LstdFlags)
+		buildsCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -160,6 +173,10 @@ func init() {
 	// Projects command flags
 	projectsCmd.Flags().IntP("count", "n", 50, "Number of projects to show")
 
+	// Builds command flags
+	buildsCmd.Flags().IntP("count", "n", 10, "Number of builds to show")
+	buildsCmd.Flags().StringP("query", "q", "", "OneDev build query (e.g. '\"Job\" is \"Release\"')")
+
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
 	rootCmd.AddCommand(runJobCmd)
@@ -167,6 +184,7 @@ func init() {
 	rootCmd.AddCommand(checkoutPullRequestCmd)
 	rootCmd.AddCommand(checkBuildSpecCmd)
 	rootCmd.AddCommand(projectsCmd)
+	rootCmd.AddCommand(buildsCmd)
 }
 
 func main() {
