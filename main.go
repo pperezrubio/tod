@@ -88,6 +88,19 @@ var buildsCmd = &cobra.Command{
 	},
 }
 
+var agentsCmd = &cobra.Command{
+	Use:   "agents",
+	Short: "List job executors",
+	Long:  `List configured job executors (agents) on the OneDev server.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		agentsCommand := AgentsCommand{}
+		logger := log.New(os.Stdout, "[AGENTS] ", log.LstdFlags)
+		agentsCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -185,6 +198,7 @@ func init() {
 	rootCmd.AddCommand(checkBuildSpecCmd)
 	rootCmd.AddCommand(projectsCmd)
 	rootCmd.AddCommand(buildsCmd)
+	rootCmd.AddCommand(agentsCmd)
 }
 
 func main() {
