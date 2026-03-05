@@ -127,6 +127,19 @@ var secretsCmd = &cobra.Command{
 	},
 }
 
+var settingsCmd = &cobra.Command{
+	Use:   "settings",
+	Short: "Show project settings",
+	Long:  `Show project settings sections or a specific section in detail.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		settingsCommand := SettingsCommand{}
+		logger := log.New(os.Stdout, "[SETTINGS] ", log.LstdFlags)
+		settingsCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -227,6 +240,7 @@ func init() {
 	rootCmd.AddCommand(agentsCmd)
 	rootCmd.AddCommand(logsCmd)
 	rootCmd.AddCommand(secretsCmd)
+	rootCmd.AddCommand(settingsCmd)
 }
 
 func main() {
