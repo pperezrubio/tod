@@ -125,6 +125,58 @@ var checkBuildSpecCmd = &cobra.Command{
 	},
 }
 
+var projectsCmd = &cobra.Command{
+	Use:   "projects",
+	Short: "List OneDev projects",
+	Long:  `List all accessible OneDev projects.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := ProjectsCommand{}
+		logger := log.New(os.Stdout, "[PROJECTS] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var artifactsCmd = &cobra.Command{
+	Use:   "artifacts",
+	Short: "Manage build artifacts",
+	Long:  `List and download OneDev build artifacts.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		artifactsListCommand := ArtifactsListCommand{}
+		logger := log.New(os.Stdout, "[ARTIFACTS] ", log.LstdFlags)
+		artifactsListCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var artifactsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List artifacts for a build",
+	Long:  `List all artifacts produced by a specific build.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		artifactsListCommand := ArtifactsListCommand{}
+		logger := log.New(os.Stdout, "[ARTIFACTS] ", log.LstdFlags)
+		artifactsListCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var artifactsDownloadCmd = &cobra.Command{
+	Use:   "download <path>",
+	Short: "Download an artifact from a build",
+	Long:  `Download a specific artifact file from a build by its path.`,
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		artifactsDownloadCommand := ArtifactsDownloadCommand{}
+		logger := log.New(os.Stdout, "[ARTIFACTS] ", log.LstdFlags)
+		artifactsDownloadCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 func init() {
 	// Run-local command specific flags
 	runLocalJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
@@ -144,12 +196,34 @@ func init() {
 	// MCP command specific flags
 	mcpCmd.Flags().String("log-file", "", "Specify log file path for debug logging")
 
+	// Projects command flags
+	projectsCmd.Flags().IntP("count", "n", 100, "Maximum number of projects to return")
+
+	// Artifacts command flags (shared for default list action)
+	artifactsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	artifactsCmd.Flags().StringP("build", "b", "", "Build number (required)")
+
+	// Artifacts list command flags
+	artifactsListCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	artifactsListCmd.Flags().StringP("build", "b", "", "Build number (required)")
+
+	// Artifacts download command flags
+	artifactsDownloadCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	artifactsDownloadCmd.Flags().StringP("build", "b", "", "Build number (required)")
+	artifactsDownloadCmd.Flags().StringP("output", "o", "", "Output file path (default: artifact filename)")
+
+	// Add subcommands
+	artifactsCmd.AddCommand(artifactsListCmd)
+	artifactsCmd.AddCommand(artifactsDownloadCmd)
+
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
 	rootCmd.AddCommand(runJobCmd)
 	rootCmd.AddCommand(mcpCmd)
 	rootCmd.AddCommand(checkoutPullRequestCmd)
 	rootCmd.AddCommand(checkBuildSpecCmd)
+	rootCmd.AddCommand(projectsCmd)
+	rootCmd.AddCommand(artifactsCmd)
 }
 
 func main() {

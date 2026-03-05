@@ -1,0 +1,8 @@
+7    tod                  tod                            OneDev CLI tool (fork of theonedev/tod) — issues, PRs, builds, projects, and build spec management
+3    llm-proxy            llm-proxy
+2    oh-my-opencode       pperezrubio/oh-my-opencode     the best agent harness
+6    qmd                  qmd                            Custom fork of tobi/qmd — local search/indexing CLI (BM25 + vectors + rerank) with original_path fix and agent-optimized output
+5    guardrails           guardrails                     PII guardrails VM (Presidio + PasteGuard)
+4    anthropic-mux        llm-proxy/anthropic-mux        Refactored Anthropic API load balancer (mux)
+1    pperezrubio          pperezrubio
+EXIT:0
