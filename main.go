@@ -125,6 +125,72 @@ var checkBuildSpecCmd = &cobra.Command{
 	},
 }
 
+var issuesCmd = &cobra.Command{
+	Use:   "issues",
+	Short: "Manage project issues",
+	Long:  `List, create, edit, and close OneDev project issues.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Default: list issues
+		issuesListCommand := IssuesListCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		issuesListCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var issuesListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List issues for a project",
+	Long:  `List issues for a project with optional filtering by state and query.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		issuesListCommand := IssuesListCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		issuesListCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var issuesCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new issue",
+	Long:  `Create a new issue in a project.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		issuesCreateCommand := IssuesCreateCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		issuesCreateCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var issuesEditCmd = &cobra.Command{
+	Use:   "edit <number>",
+	Short: "Edit an existing issue",
+	Long:  `Edit an existing issue's title or description.`,
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		issuesEditCommand := IssuesEditCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		issuesEditCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var issuesCloseCmd = &cobra.Command{
+	Use:   "close <number>",
+	Short: "Close an issue",
+	Long:  `Close an issue by changing its state.`,
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		issuesCloseCommand := IssuesCloseCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		issuesCloseCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 func init() {
 	// Run-local command specific flags
 	runLocalJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
@@ -144,12 +210,44 @@ func init() {
 	// MCP command specific flags
 	mcpCmd.Flags().String("log-file", "", "Specify log file path for debug logging")
 
+	// Issues command flags (shared for default list action)
+	issuesCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	issuesCmd.Flags().IntP("count", "n", 50, "Maximum number of issues to return")
+	issuesCmd.Flags().StringP("query", "q", "", "OneDev issue query (overrides --state filter)")
+	issuesCmd.Flags().StringP("state", "s", "open", "Filter by state: open, closed, all")
+
+	// Issues list command flags
+	issuesListCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	issuesListCmd.Flags().IntP("count", "n", 50, "Maximum number of issues to return")
+	issuesListCmd.Flags().StringP("query", "q", "", "OneDev issue query (overrides --state filter)")
+	issuesListCmd.Flags().StringP("state", "s", "open", "Filter by state: open, closed, all")
+
+	// Issues create command flags
+	issuesCreateCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	issuesCreateCmd.Flags().StringP("title", "t", "", "Issue title (required)")
+	issuesCreateCmd.Flags().StringP("description", "d", "", "Issue description")
+
+	// Issues edit command flags
+	issuesEditCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	issuesEditCmd.Flags().StringP("title", "t", "", "New title for the issue")
+	issuesEditCmd.Flags().StringP("description", "d", "", "New description for the issue")
+
+	// Issues close command flags
+	issuesCloseCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
+	// Add subcommands to issuesCmd
+	issuesCmd.AddCommand(issuesListCmd)
+	issuesCmd.AddCommand(issuesCreateCmd)
+	issuesCmd.AddCommand(issuesEditCmd)
+	issuesCmd.AddCommand(issuesCloseCmd)
+
 	// Add commands to root
 	rootCmd.AddCommand(runLocalJobCmd)
 	rootCmd.AddCommand(runJobCmd)
 	rootCmd.AddCommand(mcpCmd)
 	rootCmd.AddCommand(checkoutPullRequestCmd)
 	rootCmd.AddCommand(checkBuildSpecCmd)
+	rootCmd.AddCommand(issuesCmd)
 }
 
 func main() {
