@@ -316,3 +316,106 @@ func (command IssuesCloseCommand) Execute(cobraCmd *cobra.Command, args []string
 
 	fmt.Printf("Closed issue #%s\n", issueRef)
 }
+
+type IssuesCommentsCommand struct{}
+
+func (command IssuesCommentsCommand) Execute(cobraCmd *cobra.Command, args []string, logger *log.Logger) {
+	issueNumber := args[0]
+	projectPath := resolveProjectForIssues(cobraCmd, logger)
+	query := fmt.Sprintf(`"Number" is "%s#%s"`, projectPath, issueNumber)
+	apiURL := config.ServerUrl + "/~api/issues?query=" + url.QueryEscape(query) + "&offset=0&count=1"
+	body, err := issuesAPICall("GET", apiURL, "")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to find issue:", err)
+		os.Exit(1)
+	}
+	var issues []map[string]interface{}
+	if err := json.Unmarshal(body, &issues); err != nil || len(issues) == 0 {
+		fmt.Fprintf(os.Stderr, "Issue #%s not found\n", issueNumber)
+		os.Exit(1)
+	}
+	issueId := int(issues[0]["id"].(float64))
+	commentsURL := fmt.Sprintf("%s/~api/issues/%d/comments", config.ServerUrl, issueId)
+	body, err = issuesAPICall("GET", commentsURL, "")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to list comments:", err)
+		os.Exit(1)
+	}
+	var comments []map[string]interface{}
+	if err := json.Unmarshal(body, &comments); err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to parse comments:", err)
+		os.Exit(1)
+	}
+	if len(comments) == 0 {
+		fmt.Printf("No comments found for issue #%s\n", issueNumber)
+		return
+	}
+	fmt.Printf("Comments for issue #%s:\n\n", issueNumber)
+	for _, comment := range comments {
+		id := int(comment["id"].(float64))
+		content, _ := comment["content"].(string)
+		date, _ := comment["date"].(string)
+		userName := "unknown"
+		if user, ok := comment["user"].(map[string]interface{}); ok {
+			if name, ok := user["name"].(string); ok {
+				userName = name
+			}
+		}
+		display := strings.ReplaceAll(content, "\n", " ")
+		if len(display) > 80 {
+			display = display[:77] + "..."
+		}
+		if len(date) > 10 {
+			date = date[:10]
+		}
+		fmt.Printf("  #%-5d  %-15s  %-10s  %s\n", id, userName, date, display)
+	}
+}
+
+type IssuesCommentCommand struct{}
+
+func (command IssuesCommentCommand) Execute(cobraCmd *cobra.Command, args []string, logger *log.Logger) {
+	issueNumber := args[0]
+	commentBody := args[1]
+	projectPath := resolveProjectForIssues(cobraCmd, logger)
+	query := fmt.Sprintf(`"Number" is "%s#%s"`, projectPath, issueNumber)
+	apiURL := config.ServerUrl + "/~api/issues?query=" + url.QueryEscape(query) + "&offset=0&count=1"
+	issueBody, err := issuesAPICall("GET", apiURL, "")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to find issue:", err)
+		os.Exit(1)
+	}
+	var issues []map[string]interface{}
+	if err := json.Unmarshal(issueBody, &issues); err != nil || len(issues) == 0 {
+		fmt.Fprintf(os.Stderr, "Issue #%s not found\n", issueNumber)
+		os.Exit(1)
+	}
+	issueId := int(issues[0]["id"].(float64))
+	usersURL := config.ServerUrl + "/~api/users?offset=0&count=1"
+	usersBody, err := issuesAPICall("GET", usersURL, "")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get current user:", err)
+		os.Exit(1)
+	}
+	var users []map[string]interface{}
+	if err := json.Unmarshal(usersBody, &users); err != nil || len(users) == 0 {
+		fmt.Fprintln(os.Stderr, "Failed to parse user list")
+		os.Exit(1)
+	}
+	userId := int(users[0]["id"].(float64))
+	payload := map[string]interface{}{
+		"issueId": issueId,
+		"userId":  userId,
+		"content": commentBody,
+	}
+	payloadBytes, _ := json.Marshal(payload)
+	createURL := config.ServerUrl + "/~api/issue-comments"
+	resp, err := issuesAPICall("POST", createURL, string(payloadBytes))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to add comment:", err)
+		os.Exit(1)
+	}
+	var commentId int64
+	json.Unmarshal(resp, &commentId)
+	fmt.Printf("Comment added to issue #%s (comment ID: %d)\n", issueNumber, commentId)
+}

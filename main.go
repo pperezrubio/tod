@@ -428,6 +428,30 @@ var issuesCloseCmd = &cobra.Command{
 	},
 }
 
+var issuesCommentsCmd = &cobra.Command{
+	Use:   "comments <number>",
+	Short: "List comments for an issue",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IssuesCommentsCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
+var issuesCommentCmd = &cobra.Command{
+	Use:   "comment <number> <body>",
+	Short: "Add a comment to an issue",
+	Args:  cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		command := IssuesCommentCommand{}
+		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		command.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var artifactsCmd = &cobra.Command{
 	Use:   "artifacts",
 	Short: "Manage build artifacts",
@@ -524,11 +548,19 @@ func init() {
 	// Issues close command flags
 	issuesCloseCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
 
+	// Issues comments command flags
+	issuesCommentsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
+	// Issues comment command flags
+	issuesCommentCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
 	// Add subcommands to issuesCmd
 	issuesCmd.AddCommand(issuesListCmd)
 	issuesCmd.AddCommand(issuesCreateCmd)
 	issuesCmd.AddCommand(issuesEditCmd)
 	issuesCmd.AddCommand(issuesCloseCmd)
+	issuesCmd.AddCommand(issuesCommentsCmd)
+	issuesCmd.AddCommand(issuesCommentCmd)
 
 	// PRS command flags (default list action)
 	prsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
