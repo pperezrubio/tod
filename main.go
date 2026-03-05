@@ -114,6 +114,19 @@ var logsCmd = &cobra.Command{
 	},
 }
 
+var secretsCmd = &cobra.Command{
+	Use:   "secrets",
+	Short: "List job secrets for a project",
+	Long:  `List job secrets configured in a project's build settings.`,
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		secretsCommand := SecretsCommand{}
+		logger := log.New(os.Stdout, "[SECRETS] ", log.LstdFlags)
+		secretsCommand.Execute(cmd, args, logger)
+		return nil
+	},
+}
+
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "Start MCP server",
@@ -213,6 +226,7 @@ func init() {
 	rootCmd.AddCommand(buildsCmd)
 	rootCmd.AddCommand(agentsCmd)
 	rootCmd.AddCommand(logsCmd)
+	rootCmd.AddCommand(secretsCmd)
 }
 
 func main() {
