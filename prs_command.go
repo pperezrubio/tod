@@ -85,7 +85,7 @@ func (command PrsCommand) Execute(cobraCmd *cobra.Command, args []string, logger
 		"offset": {"0"},
 		"count":  {strconv.Itoa(count)},
 	}
-	apiURL := config.ServerUrl + "/~api/pull-requests?" + queryParams.Encode()
+	apiURL := config.ServerUrl + "/~api/pulls?" + queryParams.Encode()
 
 	body, err := prsAPIGet(apiURL)
 	if err != nil {
