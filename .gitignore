@@ -12,3 +12,7 @@ tod.exe
 *.bak
 *~.nib
 *.DS_Store
+
+# Agent artifacts (not part of the project)
+.sisyphus/
+.onedev-buildspec.yml
