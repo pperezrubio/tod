@@ -605,6 +605,9 @@ func init() {
 	// Check build spec command specific flags
 	checkBuildSpecCmd.Flags().String("working-dir", "", "Specify working directory containing build spec file (defaults to current directory)")
 
+	// Logs command specific flags
+	logsCmd.Flags().String("working-dir", "", "Specify working directory to infer project from (defaults to current directory)")
+
 	// MCP command specific flags
 	mcpCmd.Flags().String("log-file", "", "Specify log file path for debug logging")
 

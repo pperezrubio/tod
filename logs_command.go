@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -27,9 +28,30 @@ func (command LogsCommand) Execute(cobraCmd *cobra.Command, args []string, logge
 		os.Exit(1)
 	}
 
-	// Search recent builds to resolve build number → build ID
-	// OneDev API uses internal IDs, not display numbers
-	searchURL := config.ServerUrl + "/~api/builds?offset=0&count=100"
+	workingDir, _ := cobraCmd.Flags().GetString("working-dir")
+	if workingDir == "" {
+		workingDir, err = os.Getwd()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to get working directory:", err)
+			os.Exit(1)
+		}
+	}
+
+	// Infer project from git remote (same as run-local, run, etc.)
+	_, project, inferErr := inferProject(workingDir, logger)
+
+	// Search builds scoped to project when we can infer it
+	var searchURL string
+	if inferErr == nil && project != "" {
+		query := fmt.Sprintf(`"Project" is "%s"`, project)
+		searchURL = config.ServerUrl + "/~api/builds?offset=0&count=200&query=" + url.QueryEscape(query)
+		logger.Printf("Searching builds for project '%s'\n", project)
+	} else {
+		// Fallback: search all recent builds (ambiguous when multiple projects share build numbers)
+		logger.Printf("Could not infer project (%v), searching all recent builds\n", inferErr)
+		searchURL = config.ServerUrl + "/~api/builds?offset=0&count=200"
+	}
+
 	body, err := makeAPICallSimple("GET", searchURL, "")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to query builds:", err)
@@ -54,23 +76,19 @@ func (command LogsCommand) Execute(cobraCmd *cobra.Command, args []string, logge
 	}
 
 	if !found {
-		// Try direct ID access as fallback
-		directURL := config.ServerUrl + fmt.Sprintf("/~api/builds/%d", buildNumber)
-		body, err = makeAPICallSimple("GET", directURL, "")
-		if err != nil {
+		if inferErr == nil && project != "" {
+			fmt.Fprintf(os.Stderr, "Build #%d not found in project '%s'\n", buildNumber, project)
+		} else {
 			fmt.Fprintf(os.Stderr, "Build #%d not found\n", buildNumber)
-			os.Exit(1)
 		}
-		var build map[string]interface{}
-		if err := json.Unmarshal(body, &build); err != nil {
-			fmt.Fprintf(os.Stderr, "Build #%d not found\n", buildNumber)
-			os.Exit(1)
-		}
-		buildId = int(build["id"].(float64))
-		buildNumber = int(build["number"].(float64))
+		os.Exit(1)
 	}
 
-	fmt.Printf("Streaming log for build #%d...\n", buildNumber)
+	if project != "" {
+		fmt.Printf("Streaming log for build #%d (project: %s)...\n", buildNumber, project)
+	} else {
+		fmt.Printf("Streaming log for build #%d...\n", buildNumber)
+	}
 
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
