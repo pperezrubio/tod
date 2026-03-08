@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -56,7 +57,7 @@ and streams the job execution logs back to your terminal.`,
 		// Run local job command
 		runLocalJobCommand := RunLocalJobCommand{}
 		// Create a logger that prints to stdout
-		logger := log.New(os.Stdout, "[RUN-LOCAL] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[RUN-LOCAL] ", 0)
 		runLocalJobCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -69,7 +70,7 @@ var projectsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectsCommand := ProjectsCommand{}
-		logger := log.New(os.Stdout, "[PROJECTS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PROJECTS] ", 0)
 		projectsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -82,7 +83,7 @@ var buildsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		buildsCommand := BuildsCommand{}
-		logger := log.New(os.Stdout, "[BUILDS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[BUILDS] ", 0)
 		buildsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -95,7 +96,7 @@ var agentsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		agentsCommand := AgentsCommand{}
-		logger := log.New(os.Stdout, "[AGENTS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[AGENTS] ", 0)
 		agentsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -108,7 +109,7 @@ var logsCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logsCommand := LogsCommand{}
-		logger := log.New(os.Stdout, "[LOGS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[LOGS] ", 0)
 		logsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -121,7 +122,7 @@ var secretsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		secretsCommand := SecretsCommand{}
-		logger := log.New(os.Stdout, "[SECRETS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[SECRETS] ", 0)
 		secretsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -134,7 +135,7 @@ var settingsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		settingsCommand := SettingsCommand{}
-		logger := log.New(os.Stdout, "[SETTINGS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[SETTINGS] ", 0)
 		settingsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -147,7 +148,7 @@ var usersCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		usersCommand := UsersCommand{}
-		logger := log.New(os.Stdout, "[USERS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[USERS] ", 0)
 		usersCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -160,7 +161,7 @@ var webhooksCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		webhooksCommand := WebhooksCommand{}
-		logger := log.New(os.Stdout, "[WEBHOOKS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[WEBHOOKS] ", 0)
 		webhooksCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -220,7 +221,7 @@ var createProjectCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		createProjectCommand := CreateProjectCommand{}
-		logger := log.New(os.Stdout, "[CREATE-PROJECT] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[CREATE-PROJECT] ", 0)
 		createProjectCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -232,7 +233,7 @@ var prsCmd = &cobra.Command{
 	Long:  `List, create, and merge pull requests in a OneDev project.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		prsCommand := PrsCommand{}
-		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PRS] ", 0)
 		prsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -244,7 +245,7 @@ var prsListCmd = &cobra.Command{
 	Long:  `List pull requests for a OneDev project.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		prsCommand := PrsCommand{}
-		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PRS] ", 0)
 		prsCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -256,7 +257,7 @@ var prsCreateCmd = &cobra.Command{
 	Long:  `Create a new pull request in a OneDev project.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		prsCommand := PrsCommand{}
-		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PRS] ", 0)
 		prsCommand.ExecuteCreate(cmd, args, logger)
 		return nil
 	},
@@ -269,7 +270,7 @@ var prsMergeCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		prsCommand := PrsCommand{}
-		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PRS] ", 0)
 		prsCommand.ExecuteMerge(cmd, args, logger)
 		return nil
 	},
@@ -281,7 +282,7 @@ var prsApproveCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := PrsApproveCommand{}
-		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PRS] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -293,7 +294,7 @@ var prsRequestChangesCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := PrsRequestChangesCommand{}
-		logger := log.New(os.Stdout, "[PRS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[PRS] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -326,7 +327,7 @@ Either --branch or --tag must be specified, but not both.`,
 		// Run job command
 		runJobCommand := RunJobCommand{}
 		// Create a logger that prints to stdout
-		logger := log.New(os.Stdout, "[RUN] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[RUN] ", 0)
 		runJobCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -341,7 +342,7 @@ var checkoutPullRequestCmd = &cobra.Command{
 		// Checkout command
 		checkoutPullRequestCommand := CheckoutPullRequestCommand{}
 		// Create a logger that prints to stdout
-		logger := log.New(os.Stdout, "[CHECKOUT] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[CHECKOUT] ", 0)
 		checkoutPullRequestCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -356,7 +357,7 @@ var checkBuildSpecCmd = &cobra.Command{
 		// Check build spec command
 		checkBuildSpecCommand := CheckBuildSpecCommand{}
 		// Create a logger that prints to stdout
-		logger := log.New(os.Stdout, "[CHECK] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[CHECK] ", 0)
 		checkBuildSpecCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -370,7 +371,7 @@ var issuesCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Default: list issues
 		issuesListCommand := IssuesListCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		issuesListCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -383,7 +384,7 @@ var issuesListCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		issuesListCommand := IssuesListCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		issuesListCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -396,7 +397,7 @@ var issuesCreateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		issuesCreateCommand := IssuesCreateCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		issuesCreateCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -409,7 +410,7 @@ var issuesEditCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		issuesEditCommand := IssuesEditCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		issuesEditCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -422,7 +423,7 @@ var issuesCloseCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		issuesCloseCommand := IssuesCloseCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		issuesCloseCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -434,7 +435,7 @@ var issuesCommentsCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := IssuesCommentsCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -446,7 +447,7 @@ var issuesCommentCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := IssuesCommentCommand{}
-		logger := log.New(os.Stdout, "[ISSUES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ISSUES] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -459,7 +460,7 @@ var artifactsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		artifactsListCommand := ArtifactsListCommand{}
-		logger := log.New(os.Stdout, "[ARTIFACTS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ARTIFACTS] ", 0)
 		artifactsListCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -472,7 +473,7 @@ var artifactsListCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		artifactsListCommand := ArtifactsListCommand{}
-		logger := log.New(os.Stdout, "[ARTIFACTS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ARTIFACTS] ", 0)
 		artifactsListCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -485,7 +486,7 @@ var artifactsDownloadCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		artifactsDownloadCommand := ArtifactsDownloadCommand{}
-		logger := log.New(os.Stdout, "[ARTIFACTS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ARTIFACTS] ", 0)
 		artifactsDownloadCommand.Execute(cmd, args, logger)
 		return nil
 	},
@@ -498,7 +499,7 @@ var branchesCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := BranchesCommand{}
-		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[BRANCHES] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -510,7 +511,7 @@ var branchesListCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := BranchesListCommand{}
-		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[BRANCHES] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -522,7 +523,7 @@ var branchesCreateCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := BranchesCreateCommand{}
-		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[BRANCHES] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -534,7 +535,7 @@ var branchesDeleteCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := BranchesDeleteCommand{}
-		logger := log.New(os.Stdout, "[BRANCHES] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[BRANCHES] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -547,7 +548,7 @@ var iterationsCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := IterationsCommand{}
-		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ITERATIONS] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -559,7 +560,7 @@ var iterationsListCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := IterationsListCommand{}
-		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ITERATIONS] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -571,7 +572,7 @@ var iterationsCreateCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := IterationsCreateCommand{}
-		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ITERATIONS] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
@@ -583,7 +584,7 @@ var iterationsCloseCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		command := IterationsCloseCommand{}
-		logger := log.New(os.Stdout, "[ITERATIONS] ", log.LstdFlags)
+		logger := log.New(io.Discard, "[ITERATIONS] ", 0)
 		command.Execute(cmd, args, logger)
 		return nil
 	},
