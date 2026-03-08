@@ -619,6 +619,8 @@ func init() {
 	buildsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
 	buildsCmd.Flags().IntP("count", "n", 10, "Number of builds to show")
 	buildsCmd.Flags().StringP("query", "q", "", "OneDev build query (e.g. '\"Job\" is \"Release\"')")
+	buildsCmd.Flags().BoolP("watch", "w", false, "Poll builds until all reach a terminal state (exit 0 if all pass, 1 if any fail)")
+	buildsCmd.Flags().Int("interval", 10, "Poll interval in seconds for --watch mode (default: 10)")
 
 	// Config subcommands
 	configCmd.AddCommand(configShowCmd)

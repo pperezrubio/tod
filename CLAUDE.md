@@ -22,7 +22,7 @@ Each command lives in its own file following the pattern `{name}_command.go`:
 
 | File | Commands | Project Resolution |
 |------|----------|-------------------|
-| `builds_command.go` | `builds` | `--project` / `-p` or git remote inference via `resolveProjectForBuilds()` |
+| `builds_command.go` | `builds` | `--project` / `-p` or git remote inference via `resolveProjectForBuilds()`. `--watch` / `-w` polls until terminal. `--interval` sets poll seconds. |
 | `logs_command.go` | `logs <build-number>` | `--project` / `-p` or git remote inference via `resolveProjectForBuilds()` |
 | `issues_command.go` | `issues [list|create|edit|close|comments|comment]` | `--project` / `-p` or git remote inference |
 | `prs_command.go` | `prs [list|create|merge|approve|request-changes]` | `--project` / `-p` or git remote inference |
@@ -89,6 +89,12 @@ go test ./...
 
 # List builds with explicit project
 ./tod builds --project llm-proxy/tod
+
+# Watch builds until all finish (polls every 10s, exits 0/1)
+./tod builds --watch
+
+# Watch with custom interval and project
+./tod builds -w --interval 5 -p llm-proxy
 
 # Stream build logs
 ./tod logs 109
