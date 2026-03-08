@@ -606,7 +606,7 @@ func init() {
 	checkBuildSpecCmd.Flags().String("working-dir", "", "Specify working directory containing build spec file (defaults to current directory)")
 
 	// Logs command specific flags
-	logsCmd.Flags().String("working-dir", "", "Specify working directory to infer project from (defaults to current directory)")
+	logsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
 
 	// MCP command specific flags
 	mcpCmd.Flags().String("log-file", "", "Specify log file path for debug logging")
@@ -615,6 +615,7 @@ func init() {
 	projectsCmd.Flags().IntP("count", "n", 50, "Number of projects to show")
 
 	// Builds command flags
+	buildsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
 	buildsCmd.Flags().IntP("count", "n", 10, "Number of builds to show")
 	buildsCmd.Flags().StringP("query", "q", "", "OneDev build query (e.g. '\"Job\" is \"Release\"')")
 

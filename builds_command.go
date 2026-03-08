@@ -14,14 +14,36 @@ import (
 type BuildsCommand struct {
 }
 
+func resolveProjectForBuilds(cobraCmd *cobra.Command, logger *log.Logger) string {
+	projectPath, _ := cobraCmd.Flags().GetString("project")
+	if projectPath == "" {
+		workingDir, _ := os.Getwd()
+		_, inferredProject, err := inferProject(workingDir, logger)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Failed to infer project:", err)
+			os.Exit(1)
+		}
+		projectPath = inferredProject
+	}
+	return projectPath
+}
+
 func (command BuildsCommand) Execute(cobraCmd *cobra.Command, args []string, logger *log.Logger) {
 	count, _ := cobraCmd.Flags().GetInt("count")
 	query, _ := cobraCmd.Flags().GetString("query")
+	projectPath := resolveProjectForBuilds(cobraCmd, logger)
 
-	apiURL := config.ServerUrl + "/~api/builds?offset=0&count=" + fmt.Sprintf("%d", count)
+	// Build query: if user provides a custom query, scope it to the project;
+	// otherwise default to showing all builds for the project.
+	var buildQuery string
 	if query != "" {
-		apiURL += "&query=" + url.QueryEscape(query)
+		buildQuery = fmt.Sprintf(`"Project" is "%s" and (%s)`, projectPath, query)
+	} else {
+		buildQuery = fmt.Sprintf(`"Project" is "%s"`, projectPath)
 	}
+
+	apiURL := config.ServerUrl + "/~api/builds?offset=0&count=" + fmt.Sprintf("%d", count) +
+		"&query=" + url.QueryEscape(buildQuery)
 
 	body, err := makeAPICallSimple("GET", apiURL, "")
 	if err != nil {
@@ -36,7 +58,7 @@ func (command BuildsCommand) Execute(cobraCmd *cobra.Command, args []string, log
 	}
 
 	if len(builds) == 0 {
-		fmt.Println("No builds found.")
+		fmt.Printf("No builds found for project '%s'.\n", projectPath)
 		return
 	}
 
@@ -45,7 +67,6 @@ func (command BuildsCommand) Execute(cobraCmd *cobra.Command, args []string, log
 		status, _ := build["status"].(string)
 		jobName, _ := build["jobName"].(string)
 		commitHash, _ := build["commitHash"].(string)
-		projectId := int(build["projectId"].(float64))
 
 		statusColored := colorizeStatus(status)
 		hash := commitHash
@@ -53,7 +74,7 @@ func (command BuildsCommand) Execute(cobraCmd *cobra.Command, args []string, log
 			hash = hash[:8]
 		}
 
-		fmt.Printf("#%-4d %-12s %-30s %s  (project %d)\n", number, statusColored, jobName, hash, projectId)
+		fmt.Printf("#%-4d %-12s %-30s %s\n", number, statusColored, jobName, hash)
 	}
 }
 
