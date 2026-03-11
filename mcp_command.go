@@ -1417,16 +1417,20 @@ func (command *MCPCommand) handleQueryEntitiesTool(request MCPRequest, params MC
 		count = DefaultQueryCount
 	}
 
-	currentProject, err := command.getCurrentProject()
-	if err != nil {
-		command.logf("Failed to get current project: %v", err)
-		command.sendError(request.ID, ErrorCodeInternalError, "Failed to get current project: "+err.Error())
-		return
+	effectiveProject := project
+	if effectiveProject == "" {
+		currentProject, err := command.getCurrentProject()
+		if err != nil {
+			command.logf("Failed to get current project: %v", err)
+			command.sendError(request.ID, ErrorCodeInternalError, "Failed to get current project: "+err.Error())
+			return
+		}
+		effectiveProject = currentProject
 	}
 
 	urlQuery := url.Values{
-		"project":        {project},
-		"currentProject": {currentProject},
+		"project":        {effectiveProject},
+		"currentProject": {effectiveProject},
 		"query":          {query},
 		"offset":         {fmt.Sprintf("%d", int(offset))},
 		"count":          {fmt.Sprintf("%d", int(count))},
@@ -2104,11 +2108,27 @@ func (command *MCPCommand) handleCreateIssueTool(request MCPRequest, params MCPP
 func (command *MCPCommand) handleRunJobTool(request MCPRequest, params MCPParams) {
 	command.logf("Handling runJob tool call")
 
+	var project string
+	if projectArg, exists := params.Arguments["project"]; exists {
+		var ok bool
+		project, ok = projectArg.(string)
+		if !ok {
+			command.logf("Invalid type for project parameter: expected string")
+			command.sendError(request.ID, ErrorCodeInvalidParams, "Invalid type for project parameter: expected string")
+			return
+		}
+	}
+
 	currentProject, err := command.getCurrentProject()
 	if err != nil {
 		command.logf("Failed to get current project: %v", err)
 		command.sendError(request.ID, ErrorCodeInternalError, "Failed to get current project: "+err.Error())
 		return
+	}
+
+	effectiveProject := project
+	if effectiveProject == "" {
+		effectiveProject = currentProject
 	}
 
 	jobMap := make(map[string]interface{})
@@ -2121,21 +2141,21 @@ func (command *MCPCommand) handleRunJobTool(request MCPRequest, params MCPParams
 
 	jobMap["reason"] = "Submitted via MCP"
 
-	build, err := runJob(currentProject, jobMap)
+	build, err := runJob(effectiveProject, jobMap)
 	if err != nil {
 		command.logf("Failed to run job: %v", err)
 		command.sendError(request.ID, ErrorCodeInternalError, "Failed to run job: "+err.Error())
 		return
 	}
 
-	project := build["project"].(string)
+	buildProject := build["project"].(string)
 	buildNumber := int(build["number"].(float64))
 
 	response := CallToolResult{
 		Content: []ToolContent{
 			{
 				Type: "text",
-				Text: fmt.Sprintf("%s/%s/~builds/%d", config.ServerUrl, project, buildNumber),
+				Text: fmt.Sprintf("%s/%s/~builds/%d", config.ServerUrl, buildProject, buildNumber),
 			},
 		},
 	}

@@ -596,6 +596,7 @@ func init() {
 	runLocalJobCmd.Flags().StringArrayP("param", "p", nil, "Specify job parameters in form of key=value (can be used multiple times)")
 
 	// Run job command specific flags
+	runJobCmd.Flags().String("working-dir", "", "Specify working directory to run job against (defaults to current directory)")
 	runJobCmd.Flags().String("branch", "", "Specify branch to run job against (either --branch or --tag is required)")
 	runJobCmd.Flags().String("tag", "", "Specify tag to run job against (either --branch or --tag is required)")
 	runJobCmd.Flags().StringArrayP("param", "p", nil, "Specify job parameters in form of key=value (can be used multiple times)")
@@ -608,6 +609,11 @@ func init() {
 
 	// Logs command specific flags
 	logsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+
+	// Project utility command flags
+	secretsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	settingsCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
+	webhooksCmd.Flags().StringP("project", "p", "", "Project path (inferred from git remote if not specified)")
 
 	// MCP command specific flags
 	mcpCmd.Flags().String("log-file", "", "Specify log file path for debug logging")
