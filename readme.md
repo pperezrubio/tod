@@ -186,6 +186,69 @@ tod check-build-spec
 tod check-build-spec --working-dir /path/to/project
 ```
 
+### `secrets` - List Project Job Secrets
+
+List job secrets configured in a project's build settings.
+
+**Syntax:**
+```bash
+tod secrets [OPTIONS]
+```
+
+**Options:**
+- `--project <path>` or `-p <path>` - Project path (inferred from git remote if not specified)
+
+**Examples:**
+```bash
+# Infer project from current git repo
+tod secrets
+
+# Target project explicitly
+tod secrets --project onedev/tod
+```
+
+### `settings` - Show Project Settings
+
+Show project settings sections or a specific section in detail.
+
+**Syntax:**
+```bash
+tod settings [OPTIONS]
+```
+
+**Options:**
+- `--project <path>` or `-p <path>` - Project path (inferred from git remote if not specified)
+
+**Examples:**
+```bash
+# Infer project from current git repo
+tod settings
+
+# Target project explicitly
+tod settings --project onedev/tod
+```
+
+### `webhooks` - List Project Webhooks
+
+List webhooks configured in a project's settings.
+
+**Syntax:**
+```bash
+tod webhooks [OPTIONS]
+```
+
+**Options:**
+- `--project <path>` or `-p <path>` - Project path (inferred from git remote if not specified)
+
+**Examples:**
+```bash
+# Infer project from current git repo
+tod webhooks
+
+# Target project explicitly
+tod webhooks --project onedev/tod
+```
+
 ## Usage Examples
 
 ### Complete Workflow Example
