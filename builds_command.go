@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -52,6 +53,14 @@ func fetchBuilds(projectPath string, count int, query string) ([]map[string]inte
 	if err := json.Unmarshal(body, &builds); err != nil {
 		return nil, err
 	}
+
+	// Sort by build number descending (newest first) — the API does not
+	// guarantee a stable order, so enforce it client-side.
+	sort.Slice(builds, func(i, j int) bool {
+		ni, _ := builds[i]["number"].(float64)
+		nj, _ := builds[j]["number"].(float64)
+		return ni > nj
+	})
 
 	return builds, nil
 }
